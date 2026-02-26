@@ -5,7 +5,7 @@
     @keyframes fade-up {
         from {
             opacity: 0;
-            transform: translateY(40px);
+            transform: translateY(-100px);
         }
         to {
             opacity: 1;
@@ -25,7 +25,7 @@
             animation-timing-function: ease-out;
             animation-fill-mode: both;
             animation-timeline: view();
-            animation-range: entry 0% entry 60%;
+            animation-range: entry 0% cover 60%;
             will-change: opacity, transform;
         }
     }
@@ -68,7 +68,7 @@
 
 <section class="py-32 px-6 bg-earth-cream relative" id="story">
     <div class="max-w-5xl mx-auto">
-        <h2 class="text-6xl font-serif italic text-earth-taupe mb-24 text-center timeline-item">Schedule</h2>
+        <h2 class="text-6xl font-serif italic text-earth-taupe mb-24 text-center">Schedule</h2>
         
         <div class="relative">
             <!-- The connecting timeline line -->
