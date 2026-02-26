@@ -11,7 +11,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    overflow: hidden;
+    overflow: clip;
+    touch-action: none;
     /* Exit: whole overlay slides up, delayed so content fades first */
     transition: transform 1.15s cubic-bezier(0.76, 0, 0.24, 1) 0.32s;
   }
@@ -122,14 +123,14 @@
   </div>
 </div>
 
-<script is:inline type="module">
+<script is:inline>
+(async () => {
 const overlay = document.getElementById('ls');
 const barFill = document.getElementById('ls-fill');
 const canvas = document.getElementById('ls-canvas');
 
 if (overlay) {
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const priorOverflow = document.body.style.overflow;
 
   let pct = 0;
   let fakeProgress = 0;
@@ -145,7 +146,6 @@ if (overlay) {
 
   function cleanupOverlay() {
     cleanupThree();
-    document.body.style.overflow = priorOverflow;
     overlay.remove();
   }
 
@@ -163,8 +163,6 @@ if (overlay) {
     window.setTimeout(triggerExit, prefersReducedMotion ? 40 : 450);
   }
 
-  // Prevent background scroll while splash is visible.
-  document.body.style.overflow = 'hidden';
   window.requestAnimationFrame(() => overlay.classList.add('ready'));
 
   const fakeTimer = window.setInterval(() => {
@@ -385,4 +383,5 @@ if (overlay) {
     return stop;
   }
 }
+})().catch(() => {});
 </script>
