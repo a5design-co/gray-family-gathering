@@ -71,42 +71,108 @@ const {
 
 <style>
   @keyframes activityFloat {
-    0%, 100% {
-      transform: translateY(0);
-    }
-    50% {
-      transform: translateY(-4px);
-    }
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-2px); }
+  }
+
+  @keyframes cardSheen {
+    0%, 70%, 100% { transform: translateX(-135%); }
+    42%           { transform: translateX(135%); }
+  }
+
+  @keyframes imageBreath {
+    0%, 100% { transform: scale(1.025); }
+    50%      { transform: scale(1.045); }
   }
 
   .activity-card {
-   box-shadow: rgba(201, 91, 40, 0.4) 0px 5px, rgba(201, 91, 40, 0.3) 0px 10px, rgba(201, 91, 40, 0.2) 0px 15px, rgba(201, 91, 40, 0.1) 0px 20px, rgba(201, 91, 40, 0.05) 0px 25px;
-   transition: transform 0.3s ease, box-shadow 0.3s ease;
-   animation: activityFloat 5.5s ease-in-out infinite;
-   will-change: transform;
+    position: relative;
+    isolation: isolate;
+    border: 1px solid rgba(58, 106, 50, 0.12);
+    box-shadow:
+      0 10px 24px rgba(58, 106, 50, 0.08),
+      0 5px 12px rgba(201, 91, 40, 0.12);
+    transition:
+      transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 0.28s ease,
+      border-color 0.28s ease;
+    animation: activityFloat 7.2s ease-in-out infinite;
+    will-change: transform;
   }
+
+  .activity-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(
+      120deg,
+      rgba(255, 255, 255, 0) 18%,
+      rgba(255, 255, 255, 0.34) 46%,
+      rgba(255, 255, 255, 0) 72%
+    );
+    transform: translateX(-135%);
+    animation: cardSheen 10.5s ease-in-out infinite;
+  }
+
   .activity-card:nth-child(2n) {
     animation-delay: 0.35s;
   }
+
   .activity-card:nth-child(3n) {
     animation-delay: 0.7s;
   }
+
+  .activity-card:nth-child(2n)::after {
+    animation-delay: 1.2s;
+  }
+
+  .activity-card:nth-child(3n)::after {
+    animation-delay: 2.4s;
+  }
+
   .activity-card:hover {
-    animation-play-state: paused;
-    transform: translateY(-7px) scale(1.01);
-    box-shadow: rgba(0,0,0,0.14) 0px 12px 28px, rgba(0,0,0,0.06) 0px 2px 6px;
+    transform: translateY(-6px) scale(1.012);
+    border-color: rgba(201, 91, 40, 0.38);
+    box-shadow:
+      0 16px 32px rgba(58, 106, 50, 0.14),
+      0 8px 20px rgba(201, 91, 40, 0.2);
   }
+
   .activity-card .card-img {
-    transition: transform 0.5s ease;
+    animation: imageBreath 8.5s ease-in-out infinite;
+    transition: transform 0.52s ease, filter 0.42s ease;
+    transform-origin: center;
   }
+
   .activity-card:hover .card-img {
-    transform: scale(1.06);
+    animation-play-state: paused;
+    transform: scale(1.075) translateY(-2px);
+    filter: saturate(1.08);
   }
+
+  .activity-card h3 {
+    transition: color 0.22s ease;
+  }
+
+  .activity-card:hover h3 {
+    color: #c95b28;
+  }
+
   .visit-link {
-    transition: opacity 0.2s ease;
+    transition: opacity 0.2s ease, transform 0.2s ease;
   }
+
+  .visit-link .material-symbols-outlined {
+    transition: transform 0.24s ease;
+  }
+
   .activity-card:hover .visit-link {
-    opacity: 0.8;
+    opacity: 0.9;
+  }
+
+  .activity-card:hover .visit-link .material-symbols-outlined {
+    transform: translateX(3px);
   }
 
   .parking-tip {
@@ -136,9 +202,16 @@ const {
       animation: none;
     }
 
+    .activity-card::after,
+    .activity-card .card-img {
+      animation: none;
+    }
+
     .activity-card .card-img,
     .activity-card,
-    .visit-link {
+    .visit-link,
+    .visit-link .material-symbols-outlined,
+    .activity-card h3 {
       transition: none;
     }
   }
