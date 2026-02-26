@@ -41,6 +41,14 @@ npm run dev
    - New row appears in the Sheet.
    - Notification email arrives.
 
+Current RSVP fields sent to Google Apps Script:
+- `name`
+- `guests`
+- `dietary`
+- `friday`
+- `otherDish`
+- `message`
+
 ## Notes
 
 - When `PUBLIC_GOOGLE_SCRIPT_URL` is set, the RSVP component automatically uses Google Apps Script instead of Netlify Forms.
