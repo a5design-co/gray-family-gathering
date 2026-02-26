@@ -38,7 +38,7 @@
     align-items: center;
     transition: opacity 0.28s ease;
   }
-  #ls.exiting #ls-copy { opacity: 0; }
+  #ls.exiting #ls-copy { opacity: 1; }
 
   .ls-eye {
     font-family: 'Plus Jakarta Sans', sans-serif;
@@ -67,14 +67,26 @@
 
   .ls-sub {
     font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 0.68rem;
-    letter-spacing: 0.3em;
+    font-size: clamp(0.84rem, 2.3vw, 1.04rem);
+    letter-spacing: 0.2em;
     text-transform: uppercase;
-    color: rgba(58, 106, 50, 0.5);
-    font-weight: 600;
+    color: rgba(45, 84, 38, 0.94);
+    font-weight: 700;
+    background: rgba(247, 245, 240, 0.82);
+    border: 1px solid rgba(58, 106, 50, 0.22);
+    border-radius: 999px;
+    padding: 0.32rem 0.88rem;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.72);
     margin: 0 0 2.8rem;
     opacity: 0;
     transition: opacity 0.75s ease 0.88s;
+  }
+
+  @media (max-width: 560px) {
+    .ls-sub {
+      letter-spacing: 0.14em;
+      padding: 0.3rem 0.72rem;
+    }
   }
 
   /* Progress bar */
@@ -108,8 +120,8 @@
 
   <div id="ls-copy">
     <p class="ls-eye">You are cordially invited</p>
-    <h1 class="ls-title">Gray Family</h1>
-    <p class="ls-sub">Gathering &nbsp;·&nbsp; 2026</p>
+    <h1 class="ls-title">Gray Family Gathering</h1>
+    <p class="ls-sub">2026</p>
     <div class="ls-track">
       <div class="ls-fill" id="ls-fill"></div>
     </div>
@@ -124,8 +136,8 @@ const canvas = document.getElementById('ls-canvas');
 
 if (overlay) {
   const isMobileLike = window.matchMedia('(max-width: 900px), (pointer: coarse)').matches;
-  const minDisplayMs = isMobileLike ? 2000 : 2000;
-  const exitDelayMs = isMobileLike ? 450 : 3300;
+  const minDisplayMs = isMobileLike ? 2600 : 2200;
+  const exitDelayMs = isMobileLike ? 750 : 3300;
   const exitAnimMs = 1500;
 
   let pct = 0;
