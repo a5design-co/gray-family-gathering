@@ -123,206 +123,266 @@
 </div>
 
 <script is:inline type="module">
-import * as THREE from 'https://esm.sh/three@0.169.0';
-
-/* ── Reduced-motion early exit ── */
 const overlay = document.getElementById('ls');
-if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-  setTimeout(() => overlay.remove(), 400);
-  // No Three.js needed
-  throw new Error('reduced-motion: load screen skipped');
-}
-
-/* ── Helpers ── */
-const ease = t => t < 0.5 ? 2*t*t : 1 - (-2*t+2)**2 / 2;
-
-function fibSphere(i, n, r) {
-  const g     = (1 + Math.sqrt(5)) / 2;
-  const theta = Math.acos(1 - 2*(i+0.5)/n);
-  const phi   = 2 * Math.PI * i / g;
-  return new THREE.Vector3(
-    r * Math.sin(theta) * Math.cos(phi),
-    r * Math.sin(theta) * Math.sin(phi),
-    r * Math.cos(theta),
-  );
-}
-
-function makeDot() {
-  const sz = 64;
-  const c  = document.createElement('canvas');
-  c.width = c.height = sz;
-  const ctx = c.getContext('2d'), m = sz / 2;
-  const g = ctx.createRadialGradient(m,m,0,m,m,m);
-  g.addColorStop(0,    'rgba(255,255,255,1)');
-  g.addColorStop(0.38, 'rgba(255,255,255,0.72)');
-  g.addColorStop(0.78, 'rgba(255,255,255,0.08)');
-  g.addColorStop(1,    'rgba(255,255,255,0)');
-  ctx.fillStyle = g;
-  ctx.fillRect(0, 0, sz, sz);
-  return new THREE.CanvasTexture(c);
-}
-
-/* ── Renderer ── */
-const canvas  = document.getElementById('ls-canvas');
 const barFill = document.getElementById('ls-fill');
-let W = window.innerWidth, H = window.innerHeight;
+const canvas = document.getElementById('ls-canvas');
 
-const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: false });
-renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-renderer.setSize(W, H);
-renderer.setClearColor(0, 0);
+if (overlay) {
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const priorOverflow = document.body.style.overflow;
 
-const scene = new THREE.Scene();
-const cam   = new THREE.PerspectiveCamera(60, W/H, 0.1, 100);
-cam.position.z = 5.5;
+  let pct = 0;
+  let fakeProgress = 0;
+  let minDone = false;
+  let readyDone = document.readyState === 'interactive' || document.readyState === 'complete';
+  let exiting = false;
+  let cleanupThree = () => {};
 
-/* ── Particle data ── */
-// Weighted palette: gold-leaning with rust and green accents
-const PALETTE = [
-  '#c8a96e','#c8a96e','#c8a96e',  // gold (most common)
-  '#d4a853','#d4a853',             // amber
-  '#C95B28','#C95B28',             // rust
-  '#a3c178',                       // light green
-  '#3A6A32',                       // forest green (rare accent)
-];
-
-const N = 260, R = 1.85;
-const tgts = [], orgs = [], pdata = [];
-
-for (let i = 0; i < N; i++) {
-  tgts.push(fibSphere(i, N, R));
-  orgs.push(new THREE.Vector3(
-    (Math.random() - 0.5) * 11,
-    (Math.random() - 0.5) * 9,
-    (Math.random() - 0.5) * 6,
-  ));
-  pdata.push({
-    phase: Math.random() * Math.PI * 2,
-    freq:  0.65 + Math.random() * 0.75,
-    bamp:  0.022 + Math.random() * 0.04,
-  });
-}
-
-const pos  = new Float32Array(N * 3);
-const cols = new Float32Array(N * 3);
-for (let i = 0; i < N; i++) {
-  pos[i*3]   = orgs[i].x;
-  pos[i*3+1] = orgs[i].y;
-  pos[i*3+2] = orgs[i].z;
-  const col = new THREE.Color(PALETTE[Math.floor(Math.random() * PALETTE.length)]);
-  cols[i*3] = col.r; cols[i*3+1] = col.g; cols[i*3+2] = col.b;
-}
-
-const geom = new THREE.BufferGeometry();
-geom.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-geom.setAttribute('color',    new THREE.BufferAttribute(cols, 3));
-
-const tex = makeDot();
-const mat = new THREE.PointsMaterial({
-  size: 0.062, vertexColors: true,
-  transparent: true, opacity: 0.88,
-  sizeAttenuation: true, depthWrite: false,
-  map: tex,
-});
-
-const pts = new THREE.Points(geom, mat);
-scene.add(pts);
-
-/* ── Animation loop ── */
-let time = 0, gp = 0, exiting = false, ef = 0, raf;
-
-function tick() {
-  raf = requestAnimationFrame(tick);
-  time += 0.008;
-
-  // Gather progress: takes ~3.6 s to reach 1
-  if (!exiting) gp = Math.min(1, gp + 0.0044);
-  const t  = ease(gp);
-  const pa = geom.attributes.position.array;
-
-  for (let i = 0; i < N; i++) {
-    const o  = orgs[i];
-    const tg = tgts[i];
-    const d  = pdata[i];
-    // Organic breathing once formed
-    const b = Math.sin(time * d.freq + d.phase) * d.bamp * t;
-    pa[i*3]   = o.x + (tg.x - o.x) * t + tg.x * b;
-    pa[i*3+1] = o.y + (tg.y - o.y) * t + tg.y * b;
-    pa[i*3+2] = o.z + (tg.z - o.z) * t + tg.z * b;
+  function setBar(v) {
+    pct = Math.max(pct, Math.min(100, v));
+    if (barFill) barFill.style.width = `${pct}%`;
   }
-  geom.attributes.position.needsUpdate = true;
 
-  pts.rotation.y += 0.004;
-  pts.rotation.x  = Math.sin(time * 0.17) * 0.14;
+  function cleanupOverlay() {
+    cleanupThree();
+    document.body.style.overflow = priorOverflow;
+    overlay.remove();
+  }
 
-  // Exit: sphere expands and fades
-  if (exiting) {
-    ef = Math.min(1, ef + 0.042);
-    pts.scale.setScalar(1 + ease(ef) * 7.5);
-    mat.opacity = Math.max(0, 0.88 - ef * 1.7);
-    if (mat.opacity <= 0) {
-      cancelAnimationFrame(raf);
-      renderer.dispose(); tex.dispose(); geom.dispose(); mat.dispose();
-      return;
+  function triggerExit() {
+    if (exiting) return;
+    exiting = true;
+    setBar(100);
+    overlay.classList.add('exiting');
+    window.setTimeout(cleanupOverlay, prefersReducedMotion ? 320 : 1500);
+  }
+
+  function tryExit() {
+    if (!minDone || !readyDone || exiting) return;
+    window.clearInterval(fakeTimer);
+    window.setTimeout(triggerExit, prefersReducedMotion ? 40 : 450);
+  }
+
+  // Prevent background scroll while splash is visible.
+  document.body.style.overflow = 'hidden';
+  window.requestAnimationFrame(() => overlay.classList.add('ready'));
+
+  const fakeTimer = window.setInterval(() => {
+    if (exiting) return;
+    fakeProgress += 3 + Math.random() * 7.5;
+    if (fakeProgress >= 85) fakeProgress = 85;
+    setBar(fakeProgress);
+  }, 150);
+
+  // Keep the splash visible briefly, but do not block forever on slow mobile loads.
+  window.setTimeout(() => {
+    minDone = true;
+    tryExit();
+  }, prefersReducedMotion ? 150 : 1800);
+
+  const markReady = () => {
+    readyDone = true;
+    tryExit();
+  };
+
+  if (!readyDone) {
+    document.addEventListener('DOMContentLoaded', markReady, { once: true });
+    window.addEventListener('load', markReady, { once: true });
+  }
+
+  // Hard safety timeout so the overlay never gets stuck on mobile.
+  window.setTimeout(() => {
+    readyDone = true;
+    minDone = true;
+    tryExit();
+  }, 8000);
+
+  if (!prefersReducedMotion) {
+    initThree()
+      .then((cleanup) => { cleanupThree = cleanup; })
+      .catch(() => {});
+  }
+
+  async function initThree() {
+    if (!canvas || exiting || !overlay.isConnected) return () => {};
+
+    let THREE;
+    try {
+      THREE = await import('https://esm.sh/three@0.169.0');
+    } catch {
+      return () => {};
     }
+
+    if (exiting || !overlay.isConnected) return () => {};
+
+    function ease(t) {
+      return t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2;
+    }
+
+    function fibSphere(i, n, r) {
+      const g = (1 + Math.sqrt(5)) / 2;
+      const theta = Math.acos(1 - 2 * (i + 0.5) / n);
+      const phi = 2 * Math.PI * i / g;
+      return new THREE.Vector3(
+        r * Math.sin(theta) * Math.cos(phi),
+        r * Math.sin(theta) * Math.sin(phi),
+        r * Math.cos(theta),
+      );
+    }
+
+    function makeDot() {
+      const sz = 64;
+      const c = document.createElement('canvas');
+      c.width = c.height = sz;
+      const ctx = c.getContext('2d');
+      const m = sz / 2;
+      const g = ctx.createRadialGradient(m, m, 0, m, m, m);
+      g.addColorStop(0, 'rgba(255,255,255,1)');
+      g.addColorStop(0.38, 'rgba(255,255,255,0.72)');
+      g.addColorStop(0.78, 'rgba(255,255,255,0.08)');
+      g.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, sz, sz);
+      return new THREE.CanvasTexture(c);
+    }
+
+    let W = window.innerWidth;
+    let H = window.innerHeight;
+    let raf = null;
+    let time = 0;
+    let gather = 0;
+    let exitFade = 0;
+
+    let renderer;
+    try {
+      renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: false });
+    } catch {
+      return () => {};
+    }
+
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setSize(W, H);
+    renderer.setClearColor(0, 0);
+
+    const scene = new THREE.Scene();
+    const cam = new THREE.PerspectiveCamera(60, W / H, 0.1, 100);
+    cam.position.z = 5.5;
+
+    const PALETTE = [
+      '#c8a96e', '#c8a96e', '#c8a96e',
+      '#d4a853', '#d4a853',
+      '#C95B28', '#C95B28',
+      '#a3c178',
+      '#3A6A32',
+    ];
+
+    const N = 220;
+    const R = 1.85;
+    const tgts = [];
+    const orgs = [];
+    const pdata = [];
+
+    for (let i = 0; i < N; i++) {
+      tgts.push(fibSphere(i, N, R));
+      orgs.push(new THREE.Vector3(
+        (Math.random() - 0.5) * 11,
+        (Math.random() - 0.5) * 9,
+        (Math.random() - 0.5) * 6,
+      ));
+      pdata.push({
+        phase: Math.random() * Math.PI * 2,
+        freq: 0.65 + Math.random() * 0.75,
+        bamp: 0.022 + Math.random() * 0.04,
+      });
+    }
+
+    const pos = new Float32Array(N * 3);
+    const cols = new Float32Array(N * 3);
+
+    for (let i = 0; i < N; i++) {
+      pos[i * 3] = orgs[i].x;
+      pos[i * 3 + 1] = orgs[i].y;
+      pos[i * 3 + 2] = orgs[i].z;
+      const col = new THREE.Color(PALETTE[Math.floor(Math.random() * PALETTE.length)]);
+      cols[i * 3] = col.r;
+      cols[i * 3 + 1] = col.g;
+      cols[i * 3 + 2] = col.b;
+    }
+
+    const geom = new THREE.BufferGeometry();
+    geom.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    geom.setAttribute('color', new THREE.BufferAttribute(cols, 3));
+
+    const tex = makeDot();
+    const mat = new THREE.PointsMaterial({
+      size: 0.062,
+      vertexColors: true,
+      transparent: true,
+      opacity: 0.88,
+      sizeAttenuation: true,
+      depthWrite: false,
+      map: tex,
+    });
+
+    const pts = new THREE.Points(geom, mat);
+    scene.add(pts);
+
+    function onResize() {
+      W = window.innerWidth;
+      H = window.innerHeight;
+      renderer.setSize(W, H);
+      cam.aspect = W / H;
+      cam.updateProjectionMatrix();
+    }
+
+    function stop() {
+      if (raf) window.cancelAnimationFrame(raf);
+      window.removeEventListener('resize', onResize);
+      scene.remove(pts);
+      renderer.dispose();
+      tex.dispose();
+      geom.dispose();
+      mat.dispose();
+    }
+
+    function tick() {
+      raf = window.requestAnimationFrame(tick);
+      time += 0.008;
+
+      if (!exiting) gather = Math.min(1, gather + 0.0044);
+      const t = ease(gather);
+      const pa = geom.attributes.position.array;
+
+      for (let i = 0; i < N; i++) {
+        const o = orgs[i];
+        const tg = tgts[i];
+        const d = pdata[i];
+        const b = Math.sin(time * d.freq + d.phase) * d.bamp * t;
+        pa[i * 3] = o.x + (tg.x - o.x) * t + tg.x * b;
+        pa[i * 3 + 1] = o.y + (tg.y - o.y) * t + tg.y * b;
+        pa[i * 3 + 2] = o.z + (tg.z - o.z) * t + tg.z * b;
+      }
+      geom.attributes.position.needsUpdate = true;
+
+      pts.rotation.y += 0.004;
+      pts.rotation.x = Math.sin(time * 0.17) * 0.14;
+
+      if (exiting) {
+        exitFade = Math.min(1, exitFade + 0.042);
+        pts.scale.setScalar(1 + ease(exitFade) * 7.5);
+        mat.opacity = Math.max(0, 0.88 - exitFade * 1.7);
+        if (mat.opacity <= 0 || !overlay.isConnected) {
+          stop();
+          return;
+        }
+      }
+
+      renderer.render(scene, cam);
+    }
+
+    window.addEventListener('resize', onResize, { passive: true });
+    tick();
+    return stop;
   }
-
-  renderer.render(scene, cam);
-}
-tick();
-
-window.addEventListener('resize', () => {
-  W = window.innerWidth; H = window.innerHeight;
-  renderer.setSize(W, H);
-  cam.aspect = W / H;
-  cam.updateProjectionMatrix();
-}, { passive: true });
-
-/* ── Progress & exit logic ── */
-let pct = 0, minDone = false, realDone = false;
-
-function setBar(v) {
-  pct = Math.max(pct, Math.min(100, v));
-  if (barFill) barFill.style.width = pct + '%';
-}
-
-// Block scroll behind overlay
-document.body.style.overflow = 'hidden';
-
-// Reveal text on first paint
-setTimeout(() => overlay.classList.add('ready'), 65);
-
-// Simulated ramp to 85 %
-let fp = 0;
-const ft = setInterval(() => {
-  fp += 3.5 + Math.random() * 9;
-  if (fp >= 85) { clearInterval(ft); fp = 85; }
-  setBar(fp);
-}, 155);
-
-// Minimum screen time
-setTimeout(() => { minDone = true; tryExit(); }, 2500);
-
-// Actual page load
-if (document.readyState === 'complete') {
-  realDone = true;
-} else {
-  window.addEventListener('load', () => { realDone = true; tryExit(); }, { once: true });
-}
-
-function tryExit() {
-  if (!minDone || !realDone) return;
-  clearInterval(ft);
-  setBar(100);
-
-  // Brief pause at 100%, then exit
-  setTimeout(() => {
-    exiting = true;                         // Three.js sphere explodes
-    overlay.classList.add('exiting');       // text fades, overlay slides up
-    setTimeout(() => {
-      document.body.style.overflow = '';
-      overlay.remove();
-    }, 1500);
-  }, 500);
 }
 </script>

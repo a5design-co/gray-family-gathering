@@ -90,11 +90,24 @@
 <script>
   const video = document.getElementById('about-video') as HTMLVideoElement;
   const wrapper = document.getElementById('about-video-wrapper') as HTMLElement;
+  const iosVideo = video as HTMLVideoElement & {
+    webkitEnterFullscreen?: () => void;
+    webkitDisplayingFullscreen?: boolean;
+    webkitRequestFullscreen?: () => void;
+  };
+  const webkitDocument = document as Document & {
+    webkitFullscreenElement?: Element | null;
+  };
+
+  const isFullscreenActive = () =>
+    Boolean(document.fullscreenElement || webkitDocument.webkitFullscreenElement || iosVideo.webkitDisplayingFullscreen);
 
   // 1. Autoplay muted when scrolled into view
   const observer = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
+        if (isFullscreenActive()) return;
+
         if (entry.isIntersecting) {
           video.play().catch(() => {});
         } else {
@@ -106,23 +119,53 @@
   );
   observer.observe(video);
 
-  // 2. Click → fullscreen + unmute
-  video.addEventListener('click', () => {
+  // 2. Tap/click -> fullscreen + unmute (desktop + Android + iOS Safari)
+  const openVideoFullscreen = async () => {
+    if (isFullscreenActive()) return;
+
     video.muted = false;
-    if (video.requestFullscreen) {
-      video.requestFullscreen();
-    } else if ((video as any).webkitRequestFullscreen) {
-      (video as any).webkitRequestFullscreen();
+    await video.play().catch(() => {});
+
+    try {
+      if (typeof iosVideo.webkitEnterFullscreen === 'function') {
+        iosVideo.webkitEnterFullscreen();
+        wrapper.classList.add('fullscreen-active');
+        return;
+      }
+
+      if (video.requestFullscreen) {
+        await video.requestFullscreen();
+        return;
+      }
+
+      if (typeof iosVideo.webkitRequestFullscreen === 'function') {
+        iosVideo.webkitRequestFullscreen();
+        return;
+      }
+    } catch (error) {
+      console.error('Fullscreen request failed:', error);
     }
-  });
+  };
+
+  wrapper.addEventListener('click', openVideoFullscreen);
 
   // Re-mute when exiting fullscreen so ambient loop stays silent
   document.addEventListener('fullscreenchange', () => {
-    if (!document.fullscreenElement) {
+    if (!isFullscreenActive()) {
       video.muted = true;
       wrapper.classList.remove('fullscreen-active');
     } else {
       wrapper.classList.add('fullscreen-active');
     }
+  });
+
+  // iOS Safari fullscreen events
+  video.addEventListener('webkitbeginfullscreen', () => {
+    wrapper.classList.add('fullscreen-active');
+  });
+
+  video.addEventListener('webkitendfullscreen', () => {
+    video.muted = true;
+    wrapper.classList.remove('fullscreen-active');
   });
 </script>
