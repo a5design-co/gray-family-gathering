@@ -1,0 +1,88 @@
+---
+---
+
+<style>
+    .menu-card {
+        box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
+        transition: transform 0.3s ease;
+    }
+    
+    .menu-card:hover {
+        transform: translateY(-4px);
+    }
+</style>
+
+<section class="py-32 px-6 bg-earth-cream relative" id="menu">
+    <!-- Decorative abstract background elements (optional) -->
+    <div class="absolute inset-0 pointer-events-none overflow-hidden text-primary/5">
+        <span class="material-symbols-outlined absolute top-20 right-20 text-[200px] rotate-12">restaurant_menu</span>
+        <span class="material-symbols-outlined absolute bottom-20 left-10 text-[200px] -rotate-12">dinner_dining</span>
+    </div>
+
+    <div class="max-w-7xl mx-auto relative z-10 text-center">
+        <p class="text-xs uppercase tracking-[0.4em] text-primary/60 mb-4 font-bold">The Family Feast</p>
+        <h2 class="text-6xl font-serif italic text-earth-taupe mb-6">Thanksgiving in July Menu</h2>
+        <p class="text-lg text-earth-taupe/80 max-w-2xl mx-auto mb-16 leading-relaxed">
+            Join us for a delicious feast featuring our family's favorite recipes, bringing the warmth and comfort of Thanksgiving to our summer reunion.
+        </p>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 text-left">
+            <!-- Mains -->
+            <div class="menu-card bg-white p-8 rounded-2xl relative overflow-hidden group">
+                <div class="absolute -right-4 -top-4 w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center transition-transform group-hover:scale-110">
+                    <span class="material-symbols-outlined text-4xl text-primary translate-y-2 -translate-x-2">local_dining</span>
+                </div>
+                <h4 class="text-2xl font-serif text-earth-taupe mb-2 relative z-10">Mains</h4>
+                <p class="text-xs uppercase tracking-widest text-primary font-bold mb-6 border-b border-earth-taupe/10 pb-4 relative z-10">The Centerpieces</p>
+                <ul class="text-earth-taupe/80 space-y-3 relative z-10">
+                    <li class="flex items-center gap-3"><span class="w-1.5 h-1.5 rounded-full bg-primary/40 block"></span> Ribs &amp; Tips</li>
+                    <li class="flex items-center gap-3"><span class="w-1.5 h-1.5 rounded-full bg-primary/40 block"></span> Bratz &amp; Burgers</li>
+                    <li class="flex items-center gap-3"><span class="w-1.5 h-1.5 rounded-full bg-primary/40 block"></span> Fried Chicken</li>
+                    <li class="flex items-center gap-3"><span class="w-1.5 h-1.5 rounded-full bg-primary/40 block"></span> Turkey Wings</li>
+                </ul>
+            </div>
+
+            <!-- Sides -->
+            <div class="menu-card bg-white p-8 rounded-2xl relative overflow-hidden group">
+                <div class="absolute -right-4 -top-4 w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center transition-transform group-hover:scale-110">
+                    <span class="material-symbols-outlined text-4xl text-primary translate-y-2 -translate-x-2">set_meal</span>
+                </div>
+                <h4 class="text-2xl font-serif text-earth-taupe mb-2 relative z-10">Sides</h4>
+                <p class="text-xs uppercase tracking-widest text-primary font-bold mb-6 border-b border-earth-taupe/10 pb-4 relative z-10">Fresh &amp; Savory</p>
+                <ul class="text-earth-taupe/80 space-y-3 relative z-10">
+                    <li class="flex items-center gap-3"><span class="w-1.5 h-1.5 rounded-full bg-primary/40 block"></span> Greens &amp; Slaw</li>
+                    <li class="flex items-center gap-3"><span class="w-1.5 h-1.5 rounded-full bg-primary/40 block"></span> Green Beans</li>
+                    <li class="flex items-center gap-3"><span class="w-1.5 h-1.5 rounded-full bg-primary/40 block"></span> Baked Beans</li>
+                    <li class="flex items-center gap-3"><span class="w-1.5 h-1.5 rounded-full bg-primary/40 block"></span> Potato Salad</li>
+                </ul>
+            </div>
+
+            <!-- Comforts -->
+            <div class="menu-card bg-white p-8 rounded-2xl relative overflow-hidden group">
+                <div class="absolute -right-4 -top-4 w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center transition-transform group-hover:scale-110">
+                    <span class="material-symbols-outlined text-4xl text-primary translate-y-2 -translate-x-2">ramen_dining</span>
+                </div>
+                <h4 class="text-2xl font-serif text-earth-taupe mb-2 relative z-10">Comforts</h4>
+                <p class="text-xs uppercase tracking-widest text-primary font-bold mb-6 border-b border-earth-taupe/10 pb-4 relative z-10">Warm Traditions</p>
+                <ul class="text-earth-taupe/80 space-y-3 relative z-10">
+                    <li class="flex items-center gap-3"><span class="w-1.5 h-1.5 rounded-full bg-primary/40 block"></span> Macaroni</li>
+                    <li class="flex items-center gap-3"><span class="w-1.5 h-1.5 rounded-full bg-primary/40 block"></span> Cornbread</li>
+                    <li class="flex items-center gap-3"><span class="w-1.5 h-1.5 rounded-full bg-primary/40 block"></span> Spaghetti</li>
+                    <li class="flex items-center gap-3"><span class="w-1.5 h-1.5 rounded-full bg-primary/40 block"></span> Candied Yams</li>
+                </ul>
+            </div>
+
+            <!-- Sweets -->
+            <div class="menu-card bg-white p-8 rounded-2xl relative overflow-hidden group">
+                <div class="absolute -right-4 -top-4 w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center transition-transform group-hover:scale-110">
+                    <span class="material-symbols-outlined text-4xl text-primary translate-y-2 -translate-x-2">cake</span>
+                </div>
+                <h4 class="text-2xl font-serif text-earth-taupe mb-2 relative z-10">Sweets</h4>
+                <p class="text-xs uppercase tracking-widest text-primary font-bold mb-6 border-b border-earth-taupe/10 pb-4 relative z-10">A Sweet Finish</p>
+                <ul class="text-earth-taupe/80 space-y-3 relative z-10">
+                    <li class="flex items-center gap-3"><span class="w-1.5 h-1.5 rounded-full bg-primary/40 block"></span> Assorted Sweets</li>
+                    <li class="flex items-center gap-3"><span class="w-1.5 h-1.5 rounded-full bg-primary/40 block"></span> Signature Desserts</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>

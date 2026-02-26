@@ -1,0 +1,113 @@
+---
+export interface Room {
+  type:  string;
+  price: string;
+}
+
+export interface Props {
+  name?:         string;
+  address?:      string;
+  dates?:        string;
+  groupName?:    string;
+  phone?:        string;
+  deadline?:     string;
+  rooms?:        Room[];
+  perks?:        string[];
+}
+
+const {
+  name      = 'Hampton Inn — Orland Park',
+  address   = '16176 S La Grange Rd, Orland Park, IL 60467',
+  dates     = 'July 8 – 11, 2026',
+  groupName = "Gray's Thanksgiving in July",
+  phone     = '708-298-8307',
+  deadline  = 'June 15, 2026',
+  rooms     = [
+    { type: 'King Room',  price: '$193/night' },
+    { type: '2 Queens',   price: '$185/night' },
+  ],
+  perks = ['Free Breakfast', 'Free Parking'],
+} = Astro.props;
+---
+
+<style>
+    .hotel-card {
+        box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
+    }
+</style>
+
+<section class="py-32 px-6 bg-white relative" id="hotel">
+    <!-- Decorative abstract background element -->
+    <div class="absolute inset-0 pointer-events-none overflow-hidden text-primary/5 text-center">
+        <span class="material-symbols-outlined text-[300px] leading-none mt-20 inline-block rotate-6">hotel</span>
+    </div>
+
+    <div class="max-w-4xl mx-auto relative z-10">
+        <div class="text-center mb-16">
+            <p class="text-xs uppercase tracking-[0.4em] text-primary/60 mb-2 font-bold">Where to Stay</p>
+            <h2 class="text-6xl font-serif italic text-earth-taupe mb-6">Hotel Information</h2>
+            <div class="w-16 h-1 bg-primary mx-auto"></div>
+        </div>
+
+        <div class="hotel-card bg-white p-8 md:p-12 rounded-2xl relative overflow-hidden">
+            <!-- Background Icon inside card -->
+            <span class="material-symbols-outlined absolute top-8 right-8 text-8xl text-primary/10 pointer-events-none">domain</span>
+
+            <h3 class="text-2xl font-serif text-earth-taupe mb-2">{name}</h3>
+            <p class="text-earth-taupe/60 mb-8 border-b border-earth-taupe/10 pb-6">{address}</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+                <div class="flex flex-col gap-1">
+                    <span class="text-[0.7rem] uppercase tracking-[0.2em] font-bold text-primary">Reservation Dates</span>
+                    <span class="text-earth-taupe font-medium">{dates}</span>
+                </div>
+                <div class="flex flex-col gap-1">
+                    <span class="text-[0.7rem] uppercase tracking-[0.2em] font-bold text-primary">Group Name</span>
+                    <span class="text-earth-taupe font-medium">{groupName}</span>
+                </div>
+                <div class="flex flex-col gap-1">
+                    <span class="text-[0.7rem] uppercase tracking-[0.2em] font-bold text-primary">To Book (call for discount)</span>
+                    <a class="text-earth-taupe font-bold hover:text-primary transition-colors hover:underline" href={`tel:${phone.replace(/-/g, '')}`}>{phone}</a>
+                </div>
+                <div class="flex flex-col gap-1">
+                    <span class="text-[0.7rem] uppercase tracking-[0.2em] font-bold text-primary">Booking Deadline</span>
+                    <span class="text-earth-taupe font-medium">{deadline}</span>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap gap-4 mb-8">
+                {rooms.map(r => (
+                    <div class="bg-earth-cream border border-earth-taupe/10 px-6 py-4 rounded-xl text-center min-w-[140px]">
+                        <span class="block text-sm text-earth-taupe/70 uppercase tracking-widest font-bold mb-1">{r.type}</span>
+                        <strong class="block text-2xl text-primary font-serif">{r.price}</strong>
+                    </div>
+                ))}
+            </div>
+
+            <!-- Perks (non-parking) -->
+            <div class="flex flex-wrap gap-4 mb-6">
+                {perks.filter(p => !p.toLowerCase().includes('parking')).map(p => (
+                    <span class="flex items-center gap-2 text-sm text-earth-taupe/80 font-medium bg-primary/5 px-4 py-2 rounded-full">
+                        <span class="material-symbols-outlined text-[16px] text-primary">check_circle</span>
+                        {p}
+                    </span>
+                ))}
+            </div>
+
+            <!-- Parking callout -->
+            {perks.some(p => p.toLowerCase().includes('parking')) && (
+                <div class="flex items-start gap-4 bg-primary/10 border border-primary/30 rounded-xl px-6 py-5 mb-10">
+                    <span class="material-symbols-outlined text-3xl text-primary mt-0.5 shrink-0">local_parking</span>
+                    <div>
+                        <p class="text-sm font-bold uppercase tracking-widest text-primary mb-1">Free Parking Included</p>
+                        <p class="text-earth-taupe/80 text-sm leading-relaxed">The Hampton Inn offers complimentary on-site parking for all hotel guests — no extra charge for the duration of your stay.</p>
+                    </div>
+                </div>
+            )}
+
+            <div class="inline-block bg-[#fdf2e9] text-[#e67e22] px-6 py-3 rounded-lg text-sm font-bold uppercase tracking-widest border border-[#f5c6cb]">
+                ⚠️ Book by {deadline} to get the group rate
+            </div>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,229 @@
+---
+export interface Activity {
+  name:        string;
+  sub:         string;
+  url?:        string;
+  photo?:      string;
+  icon?:       string;
+  comingSoon?: boolean;
+}
+
+export interface Props {
+  activities?: Activity[];
+  parkingNote?: string;
+}
+
+const {
+  activities = [
+    {
+      name:  'Magnificent Mile',
+      sub:   'World-class shopping & dining along Chicago\'s iconic stretch.',
+      url:   'https://www.themagnificentmile.com',
+      photo: 'https://www.themagnificentmile.com/hubfs/BarryButler-LakeshoreSunset-2.jpg',
+    },
+    {
+      name:  'Navy Pier',
+      sub:   'Lakefront entertainment, rides, and stunning city views.',
+      url:   'https://navypier.org',
+      photo: 'https://navypier.org/wp-content/uploads/2025/01/navy-pier-chicago-night-photo-from-drone.jpg',
+    },
+    {
+      name:       'Taste of Chicago',
+      sub:        'More information will be available closer to the event.',
+      url:        'https://www.chicago.gov/city/en/depts/dca/supp_info/taste_of_chicago.html',
+      photo:      'https://cdn.choosechicago.com/uploads/2019/08/CC_TasteOfChicago_Entrance_1e04704e-17c5-42fd-bb0b-15bc4cf583e2.jpg',
+      comingSoon: false,
+    },
+    {
+      name:  'Shedd Aquarium',
+      sub:   'A family favorite on Chicago\'s Museum Campus lakefront.',
+      url:   'https://www.sheddaquarium.org',
+      photo: 'https://upload.wikimedia.org/wikipedia/commons/a/aa/20070110_Shedd_Aquarium.JPG',
+    },
+    {
+      name:  'Museum of Science & Industry',
+      sub:   'One of the largest science museums in the Western Hemisphere.',
+      url:   'https://www.msichicago.org',
+      photo: 'https://upload.wikimedia.org/wikipedia/commons/c/c4/MSIChicago.JPG',
+    },
+    {
+      name:  'Chicago Architecture Tour',
+      sub:   'See the city\'s iconic skyline from the Chicago River.',
+      url:   'https://firstlady.com/cruises/architecture',
+      photo: 'https://d2rcffbhqcoqge.cloudfront.net/eyJidWNrZXQiOiJmaXJzdGxhZHktYXNzZXRzIiwia2V5IjoiU0VPL0NydWlzZUNoaWNhZ28tRmlyc3RMYWR5LVJpdmVyQW5kTGFrZS0xLnBuZyIsImVkaXRzIjp7InJlc2l6ZSI6eyJ3aWR0aCI6MTIwMCwiaGVpZ2h0Ijo2MzAsInBvc2l0aW9uIjoiY2VudGVyIiwiZml0IjoiY292ZXIifSwidG9Gb3JtYXQiOiJwbmciLCJwbmciOnsiY29tcHJlc3Npb25MZXZlbCI6MiwicHJvZ3Jlc3NpdmUiOmZhbHNlfX19?mtime=1759934543',
+    },
+    {
+      name:  'Balloon Museum',
+      sub:   'A colorful, immersive art experience unlike any other.',
+      url:   'https://chicago.balloonmuseum.world',
+      photo: 'https://media.timeout.com/images/106323523/image.jpg',
+    },
+    {
+      name:  'Local Fitness',
+      sub:   'Fitness Stairs & Trails · Lifetime Fitness · Planet Fitness',
+      url:   'https://www.google.com/maps/search/local+fitness+chicago',
+      photo: 'https://upload.wikimedia.org/wikipedia/commons/d/de/Interior_of_The_Gym_Group_showing_gym_equipment_and_signage%2C_Strood_Retail_Park%2C_Kent%2C_20_September_2025.jpg',
+    },
+  ],
+  parkingNote = 'Reserve affordable parking across Chicago before you go.',
+} = Astro.props;
+---
+
+<style>
+  @keyframes activityFloat {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-4px);
+    }
+  }
+
+  .activity-card {
+   box-shadow: rgba(201, 91, 40, 0.4) 0px 5px, rgba(201, 91, 40, 0.3) 0px 10px, rgba(201, 91, 40, 0.2) 0px 15px, rgba(201, 91, 40, 0.1) 0px 20px, rgba(201, 91, 40, 0.05) 0px 25px;
+   transition: transform 0.3s ease, box-shadow 0.3s ease;
+   animation: activityFloat 5.5s ease-in-out infinite;
+   will-change: transform;
+  }
+  .activity-card:nth-child(2n) {
+    animation-delay: 0.35s;
+  }
+  .activity-card:nth-child(3n) {
+    animation-delay: 0.7s;
+  }
+  .activity-card:hover {
+    animation-play-state: paused;
+    transform: translateY(-7px) scale(1.01);
+    box-shadow: rgba(0,0,0,0.14) 0px 12px 28px, rgba(0,0,0,0.06) 0px 2px 6px;
+  }
+  .activity-card .card-img {
+    transition: transform 0.5s ease;
+  }
+  .activity-card:hover .card-img {
+    transform: scale(1.06);
+  }
+  .visit-link {
+    transition: opacity 0.2s ease;
+  }
+  .activity-card:hover .visit-link {
+    opacity: 0.8;
+  }
+
+  .parking-tip {
+    background:
+      radial-gradient(circle at 10% 10%, rgba(201, 91, 40, 0.18), transparent 45%),
+      linear-gradient(135deg, rgba(201, 91, 40, 0.12), rgba(58, 106, 50, 0.08));
+    border: 2px solid rgba(201, 91, 40, 0.35);
+    box-shadow: 0 18px 40px rgba(201, 91, 40, 0.22);
+  }
+
+  .parking-tip-badge {
+    background: rgba(201, 91, 40, 0.12);
+    border: 1px solid rgba(201, 91, 40, 0.35);
+  }
+
+  .parking-tip-cta {
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+  }
+
+  .parking-tip-cta:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(201, 91, 40, 0.25);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .activity-card {
+      animation: none;
+    }
+
+    .activity-card .card-img,
+    .activity-card,
+    .visit-link {
+      transition: none;
+    }
+  }
+</style>
+
+<section class="py-32 px-6 bg-earth-cream" id="activities">
+  <div class="max-w-7xl mx-auto">
+    <p class="text-xs uppercase tracking-[0.4em] text-primary/60 mb-2 font-bold">While You're in Town</p>
+    <h2 class="text-4xl md:text-6xl font-serif italic text-earth-taupe mb-6">Things To Do in Chicago</h2>
+    <div class="w-16 h-1 bg-primary mb-16"></div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      {activities.map(a => (
+        <div class="activity-card bg-white rounded-xl overflow-hidden flex flex-col">
+
+          <!-- Photo or gradient fallback -->
+          <div class="relative h-44 overflow-hidden">
+            {a.photo ? (
+              <img
+                src={a.photo}
+                alt={a.name}
+                class="card-img w-full h-full object-cover"
+                loading="lazy"
+              />
+            ) : (
+              <div class="w-full h-full bg-gradient-to-br from-primary/15 to-earth-taupe/10 flex items-center justify-center">
+                <span class="text-5xl" aria-hidden="true">{a.icon}</span>
+              </div>
+            )}
+
+            {a.comingSoon && (
+              <span class="absolute top-3 left-3 bg-primary text-white text-[10px] uppercase tracking-widest font-bold px-3 py-1 rounded-full shadow">
+                Details Coming
+              </span>
+            )}
+          </div>
+
+          <!-- Card body -->
+          <div class="p-5 flex flex-col flex-1">
+            <h3 class="font-bold text-earth-taupe text-sm uppercase tracking-wider mb-2">{a.name}</h3>
+            <p class="text-earth-taupe/60 text-sm leading-relaxed flex-1">{a.sub}</p>
+
+            {a.url && (
+              <a
+                href={a.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="visit-link mt-4 inline-flex items-center text-primary text-xs font-bold uppercase tracking-widest"
+                aria-label={`Learn more about ${a.name}`}
+              >
+                Learn More
+                <span class="material-symbols-outlined" style="font-size:14px;line-height:1;margin-left:4px">arrow_forward</span>
+              </a>
+            )}
+          </div>
+
+        </div>
+      ))}
+    </div>
+
+    <!-- Parking tip -->
+    <div class="parking-tip mt-20 rounded-2xl overflow-hidden max-w-5xl mx-auto p-6 md:p-10 relative">
+      <span class="parking-tip-badge inline-block rounded-full px-4 py-1 text-[10px] md:text-xs uppercase tracking-[0.2em] font-bold text-primary mb-5">
+        Highly Recommended
+      </span>
+      <div class="flex flex-col sm:flex-row items-start sm:items-center gap-5">
+        <div class="w-14 h-14 md:w-16 md:h-16 rounded-full bg-primary text-white flex items-center justify-center shadow-lg shrink-0">
+          <span class="material-symbols-outlined text-3xl">local_parking</span>
+        </div>
+        <div class="flex-1">
+          <p class="text-primary font-bold tracking-widest text-xs uppercase mb-1">Parking Tip</p>
+          <h3 class="text-2xl md:text-3xl font-serif text-earth-taupe mb-2">Reserve Parking Before You Arrive</h3>
+          <p class="text-earth-taupe/80 text-base leading-relaxed mb-4">{parkingNote}</p>
+          <a
+            href="https://spothero.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="parking-tip-cta inline-flex items-center gap-2 bg-primary text-white border-2 border-primary px-6 py-3 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-transparent hover:text-primary"
+          >
+            Reserve on SpotHero
+            <span class="material-symbols-outlined" style="font-size:16px;line-height:1">arrow_forward</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>

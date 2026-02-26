@@ -1,0 +1,98 @@
+---
+---
+
+<style>
+    .event-card {
+        box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
+    }
+
+    @keyframes slide-in-left {
+        from {
+            opacity: 0;
+            
+            transform: translateX(-100px);
+        }
+        to {
+            opacity: 1;
+            filter: blur(0px);
+            transform: translateX(0) translateY(0);
+        }
+    }
+
+    @keyframes slide-in-right {
+        from {
+            opacity: 0;
+            transform: translateX(100px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes fade-in-center {
+        from {
+            opacity: 0;
+            transform: translateY(50px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @supports (animation-timeline: view()) {
+        .slide-left {
+            animation: slide-in-left linear both;
+            animation-timeline: view();
+            animation-range: entry 10% cover 30%;
+        }
+        
+        .fade-in {
+            animation: fade-in-center linear both;
+            animation-timeline: view();
+            animation-range: entry 10% cover 30%;
+        }
+
+        .slide-right {
+            animation: slide-in-right linear both;
+            animation-timeline: view();
+            animation-range: entry 10% cover 30%;
+        }
+    }
+</style>
+
+<section class="py-32 px-6 bg-white" id="details" style="overflow-x: clip">
+    <div class="max-w-7xl mx-auto">
+        <h2 class="text-6xl font-serif italic text-earth-taupe mb-16 text-center timeline-item">Event Details</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="flex flex-col bg-white p-8 rounded-xl event-card transition-transform hover:-translate-y-1 slide-left h-full">
+                <div class="mb-4">
+                    <h3 class="text-xs uppercase tracking-widest text-primary font-bold mb-2">Dates &amp; Time</h3>
+                    <p class="text-3xl text-earth-taupe font-serif">July 8-11, 2026</p>
+                </div>
+                <div class="mt-auto pt-4 border-t border-earth-taupe/10">
+                    <p class="text-earth-taupe/70 font-medium">Kickoff Wednesday at 6 PM</p>
+                </div>
+            </div>
+            <div class="flex flex-col bg-white p-8 rounded-xl event-card transition-transform hover:-translate-y-1 fade-in h-full">
+                <div class="mb-4">
+                    <h3 class="text-xs uppercase tracking-widest text-primary font-bold mb-2">Location</h3>
+                    <p class="text-3xl text-earth-taupe font-serif">Chicago, IL</p>
+                </div>
+                <div class="mt-auto pt-4 border-t border-earth-taupe/10">
+                    <p class="text-earth-taupe/70 font-medium">Various venues across Orland Park and the city.</p>
+                </div>
+            </div>
+            <div class="flex flex-col bg-white p-8 rounded-xl event-card transition-transform hover:-translate-y-1 slide-right h-full">
+                <div class="mb-4">
+                    <h3 class="text-xs uppercase tracking-widest text-primary font-bold mb-2">Accommodation</h3>
+                    <p class="text-3xl text-earth-taupe font-serif">Hampton Inn</p>
+                </div>
+                <div class="mt-auto pt-4 border-t border-earth-taupe/10">
+                    <p class="text-earth-taupe/70 font-medium">16176 S La Grange Rd, Orland Park. Use code: Gray's Thanksgiving.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

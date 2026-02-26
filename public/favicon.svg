@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+
+  <!-- House body -->
+  <rect x="18" y="62" width="92" height="54" rx="4" fill="#c8a96e"/>
+
+  <!-- Roof -->
+  <polygon points="10,66 64,18 118,66" fill="#63863f"/>
+  <!-- Roof ridge highlight -->
+  <polygon points="64,22 114,66 118,66 64,18" fill="#4a6e2e" opacity="0.3"/>
+
+  <!-- Door -->
+  <rect x="50" y="90" width="28" height="26" rx="4" fill="#4a4435"/>
+  <!-- Door knob -->
+  <circle cx="72" cy="104" r="2.5" fill="#d4a853"/>
+
+  <!-- Left window -->
+  <rect x="24" y="74" width="22" height="18" rx="3" fill="#e8d5a8"/>
+  <line x1="35" y1="74" x2="35" y2="92" stroke="#4a4435" stroke-width="1.5"/>
+  <line x1="24" y1="83" x2="46" y2="83" stroke="#4a4435" stroke-width="1.5"/>
+
+  <!-- Right window -->
+  <rect x="82" y="74" width="22" height="18" rx="3" fill="#e8d5a8"/>
+  <line x1="93" y1="74" x2="93" y2="92" stroke="#4a4435" stroke-width="1.5"/>
+  <line x1="82" y1="83" x2="104" y2="83" stroke="#4a4435" stroke-width="1.5"/>
+
+  <!-- Adult figure (left) -->
+  <circle cx="42" cy="50" r="7" fill="#4a4435"/>
+  <path d="M34,72 Q42,62 50,72" fill="#63863f"/>
+
+  <!-- Adult figure (right) -->
+  <circle cx="86" cy="50" r="7" fill="#4a4435"/>
+  <path d="M78,72 Q86,62 94,72" fill="#63863f"/>
+
+  <!-- Child figure (center) -->
+  <circle cx="64" cy="53" r="5" fill="#4a4435"/>
+  <path d="M57,70 Q64,62 71,70" fill="#d4a853"/>
+
+  <!-- Heart above center child -->
+  <path d="M64,38 C64,38 60,33 57,35 C54,37 54,41 57,43 L64,50 L71,43 C74,41 74,37 71,35 C68,33 64,38 64,38 Z" fill="#c0392b" opacity="0.85"/>
+
+</svg>

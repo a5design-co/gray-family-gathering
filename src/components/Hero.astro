@@ -1,0 +1,279 @@
+---
+---
+
+<style>
+    @supports (animation-timeline: scroll()) {
+        @keyframes converge-tl {
+            to { transform: translate3d(15rem, 15rem, 0) rotate(0deg) scale(0.5); opacity: 0; }
+        }
+        @keyframes converge-tr {
+            to { transform: translate3d(-15rem, 15rem, 0) rotate(0deg) scale(0.5); opacity: 0; }
+        }
+        @keyframes converge-bl {
+            to { transform: translate3d(15rem, -15rem, 0) rotate(0deg) scale(0.5); opacity: 0; }
+        }
+        @keyframes converge-br {
+            to { transform: translate3d(-15rem, -15rem, 0) rotate(0deg) scale(0.5); opacity: 0; }
+        }
+
+        .img-tl {
+            animation: converge-tl linear both;
+            animation-timeline: scroll(root block);
+            animation-range: 0 600px;
+            will-change: transform, opacity;
+        }
+        .img-tr {
+            animation: converge-tr linear both;
+            animation-timeline: scroll(root block);
+            animation-range: 0 600px;
+            will-change: transform, opacity;
+        }
+        .img-bl {
+            animation: converge-bl linear both;
+            animation-timeline: scroll(root block);
+            animation-range: 0 600px;
+            will-change: transform, opacity;
+        }
+        .img-br {
+            animation: converge-br linear both;
+            animation-timeline: scroll(root block);
+            animation-range: 0 600px;
+            will-change: transform, opacity;
+        }
+    }
+</style>
+
+<section id="hero-section" class="relative min-h-screen bg-earth-cream flex flex-col items-center justify-center px-6 overflow-hidden">
+    <canvas id="hero-canvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;"></canvas>
+    <div class="absolute inset-0 pointer-events-none overflow-hidden">
+        <span class="material-symbols-outlined absolute top-8 left-8 text-6xl text-primary/20 rotate-45">local_florist</span>
+        <span class="material-symbols-outlined absolute top-8 right-8 text-6xl text-primary/20 -rotate-45">local_florist</span>
+        <span class="material-symbols-outlined absolute bottom-8 left-8 text-6xl text-primary/20 rotate-[135deg]">local_florist</span>
+        <span class="material-symbols-outlined absolute bottom-8 right-8 text-6xl text-primary/20 -rotate-[135deg]">local_florist</span>
+    </div>
+    <!-- Floating Image Collage -->
+    <div class="absolute inset-0 pointer-events-none">
+        <img class="img-tl absolute top-[8%] left-[3%] w-36 sm:w-56 md:w-72 lg:w-80 -rotate-6 shadow-2xl rounded-xl opacity-95 object-cover aspect-[3/4]" src="/photos/IMG_2357.JPG" alt="Gray family photo" />
+        <img class="img-tr absolute top-[8%] right-[3%] w-36 sm:w-56 md:w-72 lg:w-80 rotate-6 shadow-2xl rounded-xl opacity-95 object-cover aspect-[3/4]" src="/photos/IMG_1525.JPG" alt="Gray family photo" />
+        <img class="img-bl absolute bottom-[8%] left-[3%] w-36 sm:w-52 md:w-68 lg:w-80 rotate-3 shadow-2xl rounded-xl opacity-95 object-cover aspect-video" src="/photos/IMG_0671.JPEG" alt="Gray family photo" />
+        <img class="img-br absolute bottom-[8%] right-[3%] w-36 sm:w-52 md:w-68 lg:w-80 -rotate-3 shadow-2xl rounded-xl opacity-95 object-cover aspect-video" src="/photos/IMG_0672.JPEG" alt="Gray family photo" />
+    </div>
+    <div class="relative z-10 text-center max-w-4xl bg-earth-cream/80 backdrop-blur-md p-6 sm:p-10 md:p-16 rounded-3xl shadow-xl border border-earth-taupe/10">
+        <p class="text-earth-taupe uppercase tracking-[0.2em] sm:tracking-[0.3em] text-xs sm:text-sm mb-4 sm:mb-8 font-bold">You are cordially invited</p>
+        <h1 class="text-5xl sm:text-6xl md:text-8xl lg:text-9xl font-serif text-earth-taupe leading-tight mb-6">
+            Gray Family<br/>
+            <span class="italic text-primary">Gathering 2026</span>
+        </h1>
+        <p class="text-earth-taupe uppercase tracking-[0.05em] sm:tracking-[0.1em] text-xs sm:text-sm mb-2 sm:mb-4 font-bold">A celebration of legacy &amp; love</p>
+        <p class="text-earth-taupe text-lg sm:text-xl font-serif italic mb-8 sm:mb-12">Hosted by Byrdia Gray</p>
+        <div class="flex flex-col items-center gap-4 sm:gap-6">
+            <div class="flex flex-col w-full sm:w-auto sm:flex-row items-center gap-4 sm:gap-6">
+                <a class="bg-primary text-white w-full sm:w-auto px-6 py-3 sm:px-10 sm:py-4 rounded-full text-base sm:text-lg font-bold hover:scale-105 transition-transform shadow-lg" href="#rsvp">
+                    RSVP Now
+                </a>
+                <a class="border-2 border-primary text-primary w-full sm:w-auto px-6 py-3 sm:px-10 sm:py-4 rounded-full text-base sm:text-lg font-bold hover:bg-primary hover:text-white transition-all duration-300" href="#story">
+                    View Schedule
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Smooth bottom transition fade -->
+    <div class="absolute bottom-0 left-0 w-full h-16 md:h-32 bg-gradient-to-b from-transparent to-earth-cream z-20 pointer-events-none"></div>
+</section>
+
+<script is:inline type="module">
+  import * as THREE from 'https://esm.sh/three@0.169.0';
+
+  const section = document.getElementById('hero-section');
+  const canvas  = document.getElementById('hero-canvas');
+  if (!section || !canvas) throw new Error('hero elements missing');
+
+  // Petal-shaped canvas texture
+  function makePetalTexture() {
+    const w = 40, h = 72;
+    const c = document.createElement('canvas');
+    c.width = w; c.height = h;
+    const ctx = c.getContext('2d');
+    ctx.beginPath();
+    ctx.moveTo(w / 2, h - 2);
+    ctx.bezierCurveTo(w * 0.92, h * 0.65, w * 0.92, h * 0.12, w / 2, 2);
+    ctx.bezierCurveTo(w * 0.08, h * 0.12, w * 0.08, h * 0.65, w / 2, h - 2);
+    ctx.closePath();
+    const grad = ctx.createLinearGradient(0, 0, 0, h);
+    grad.addColorStop(0,   'rgba(255,255,255,0.95)');
+    grad.addColorStop(0.5, 'rgba(255,255,255,0.75)');
+    grad.addColorStop(1,   'rgba(255,255,255,0.1)');
+    ctx.fillStyle = grad;
+    ctx.fill();
+    return new THREE.CanvasTexture(c);
+  }
+
+  // Soft radial-gradient glow texture
+  function makeTexture() {
+    const size = 128;
+    const c = document.createElement('canvas');
+    c.width = c.height = size;
+    const ctx = c.getContext('2d');
+    const mid = size / 2;
+    const grad = ctx.createRadialGradient(mid, mid, 0, mid, mid, mid);
+    grad.addColorStop(0,    'rgba(255,255,255,1)');
+    grad.addColorStop(0.3,  'rgba(255,255,255,0.75)');
+    grad.addColorStop(0.65, 'rgba(255,255,255,0.2)');
+    grad.addColorStop(1,    'rgba(255,255,255,0)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, size, size);
+    return new THREE.CanvasTexture(c);
+  }
+
+  // Warm palette matching the site — cream background so we use actual tinted colors
+  const PALETTE = [
+    '#c8a96e', // gold
+    '#d4a853', // amber
+    '#e8c84a', // bright gold
+    '#a3c178', // light green
+    '#63863f', // primary green (used sparingly)
+    '#c8a96e', // gold (weighted higher — appears more often)
+    '#d4a853', // amber (weighted higher)
+    '#e8c84a', // bright gold (weighted higher)
+  ];
+
+  const COUNT = 110;
+  let W = section.clientWidth  || window.innerWidth;
+  let H = section.clientHeight || window.innerHeight;
+
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: false });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(W, H);
+  renderer.setClearColor(0x000000, 0);
+
+  const scene  = new THREE.Scene();
+  const camera = new THREE.OrthographicCamera(-W/2, W/2, H/2, -H/2, 0.1, 10);
+  camera.position.z = 5;
+
+  const texture = makeTexture();
+  const particles = [];
+
+  function addParticle(randomY = false) {
+    const hex  = PALETTE[Math.floor(Math.random() * PALETTE.length)];
+    const size = 22 + Math.random() * 52;
+    const mat  = new THREE.SpriteMaterial({
+      map:         texture,
+      color:       new THREE.Color(hex),
+      transparent: true,
+      opacity:     0.18 + Math.random() * 0.38,
+      depthWrite:  false,
+    });
+    const sprite = new THREE.Sprite(mat);
+    sprite.scale.set(size, size, 1);
+
+    const baseX  = (Math.random() - 0.5) * W;
+    const startY = randomY
+      ? (Math.random() - 0.5) * H          // scattered on first load
+      : -H / 2 - size / 2;                 // just below visible area on respawn
+
+    sprite.position.set(baseX, startY, 0);
+    scene.add(sprite);
+
+    particles.push({
+      sprite,
+      baseX,
+      size,
+      y:        startY,
+      vy:       0.12 + Math.random() * 2, // upward speed (px / frame)
+      phase:    Math.random() * Math.PI * 2,
+      swayFreq: 0.18 + Math.random() * 0.35,
+      swayAmp:  10   + Math.random() * 24,
+    });
+  }
+
+  for (let i = 0; i < COUNT; i++) addParticle(true);
+
+  // --- Falling petals ---
+  const PETAL_PALETTE = ['#a3c178', '#7da55a', '#63863f', '#c8a96e', '#b8d4a0'];
+  const PETAL_COUNT   = 32;
+  const petalTex      = makePetalTexture();
+  const petals        = [];
+
+  function addPetal(randomY = false) {
+    const hex  = PETAL_PALETTE[Math.floor(Math.random() * PETAL_PALETTE.length)];
+    const size = 12 + Math.random() * 20;
+    const mat  = new THREE.SpriteMaterial({
+      map:         petalTex,
+      color:       new THREE.Color(hex),
+      transparent: true,
+      opacity:     0.28 + Math.random() * 0.38,
+      depthWrite:  false,
+      rotation:    Math.random() * Math.PI * 2,
+    });
+    const sprite = new THREE.Sprite(mat);
+    sprite.scale.set(size * 0.55, size, 1); // narrower than tall → petal proportion
+
+    const baseX  = (Math.random() - 0.5) * W;
+    const startY = randomY ? (Math.random() - 0.5) * H : H / 2 + size;
+    sprite.position.set(baseX, startY, 0.5);
+    scene.add(sprite);
+
+    petals.push({
+      sprite,
+      baseX,
+      size,
+      y:        startY,
+      vy:       0.25 + Math.random() * 0.55,
+      phase:    Math.random() * Math.PI * 2,
+      swayFreq: 0.15 + Math.random() * 0.25,
+      swayAmp:  18   + Math.random() * 32,
+      rotSpeed: (Math.random() - 0.5) * 0.05,
+    });
+  }
+
+  for (let i = 0; i < PETAL_COUNT; i++) addPetal(true);
+
+  let time = 0;
+
+  (function tick() {
+    requestAnimationFrame(tick);
+    time += 0.008;
+
+    for (const p of particles) {
+      p.y += p.vy;
+      const x = p.baseX + Math.sin(time * p.swayFreq + p.phase) * p.swayAmp;
+      p.sprite.position.set(x, p.y, 0);
+
+      // Respawn below when particle exits the top
+      if (p.y > H / 2 + p.size / 2) {
+        p.y     = -H / 2 - p.size / 2;
+        p.baseX = (Math.random() - 0.5) * W;
+        p.sprite.material.opacity = 0.18 + Math.random() * 0.38;
+      }
+    }
+
+    for (const p of petals) {
+      p.y -= p.vy;
+      const x = p.baseX + Math.sin(time * p.swayFreq + p.phase) * p.swayAmp;
+      p.sprite.position.set(x, p.y, 0.5);
+      p.sprite.material.rotation += p.rotSpeed;
+
+      // Respawn at top when petal exits the bottom
+      if (p.y < -H / 2 - p.size) {
+        p.y     = H / 2 + p.size;
+        p.baseX = (Math.random() - 0.5) * W;
+        p.sprite.material.opacity = 0.28 + Math.random() * 0.38;
+      }
+    }
+
+    renderer.render(scene, camera);
+  })();
+
+  // Keep canvas sized to the section
+  new ResizeObserver(() => {
+    W = section.clientWidth;
+    H = section.clientHeight;
+    renderer.setSize(W, H);
+    camera.left   = -W / 2;
+    camera.right  =  W / 2;
+    camera.top    =  H / 2;
+    camera.bottom = -H / 2;
+    camera.updateProjectionMatrix();
+  }).observe(section);
+</script>

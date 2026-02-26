@@ -1,0 +1,124 @@
+---
+---
+
+<style>
+    @keyframes fade-up {
+        from {
+            opacity: 0;
+            transform: translateY(40px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .timeline-item {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    @supports (animation-timeline: view()) {
+        .timeline-item {
+            animation: fade-up linear both;
+            animation-timeline: view();
+            animation-range: entry 0% cover 40%;
+            will-change: opacity, transform;
+        }
+    }
+
+    @supports not (animation-timeline: view()) {
+        .timeline-item {
+            opacity: 1;
+            transform: none;
+        }
+    }
+
+    /* Vertical line */
+    .timeline-line {
+        position: absolute;
+        width: 2px;
+        background-color: rgba(99, 134, 63, 0.2); /* primary/20 */
+        top: 0;
+        bottom: 0;
+    }
+    
+    .timeline-line-mobile {
+        left: 27px;
+    }
+
+    @media (min-width: 768px) {
+        .timeline-line-desktop {
+            left: 50%;
+            transform: translateX(-50%);
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .timeline-item {
+            animation: none;
+            opacity: 1;
+            transform: none;
+        }
+    }
+</style>
+
+<section class="py-32 px-6 bg-earth-cream relative" id="story">
+    <div class="max-w-5xl mx-auto">
+        <h2 class="text-6xl font-serif italic text-earth-taupe mb-24 text-center timeline-item">Schedule</h2>
+        
+        <div class="relative">
+            <!-- The connecting timeline line -->
+            <div class="timeline-line timeline-line-mobile md:hidden"></div>
+            <div class="timeline-line timeline-line-desktop hidden md:block"></div>
+            
+            <div class="space-y-16 md:space-y-24">
+                
+                <!-- Item 1 (Left on md) -->
+                <div class="relative flex flex-col md:flex-row items-center justify-between timeline-item w-full">
+                    <div class="order-2 md:order-1 md:w-[45%] w-full pl-16 md:pl-0 pr-0 md:pr-12 text-left md:text-right z-10">
+                        <div class="bg-earth-cream p-8 rounded-2xl shadow-sm border border-earth-taupe/10 hover:shadow-[rgba(0,_0,_0,_0.1)_0px_10px_30px] transition-shadow duration-300">
+                            <span class="text-primary font-bold tracking-widest text-xs uppercase block mb-3">July 8</span>
+                            <h4 class="text-2xl text-earth-taupe font-serif mb-4">Meet &amp; Greet</h4>
+                            <p class="text-earth-taupe/60 leading-relaxed">Join us in the hotel lobby from 6-9pm to kick off the weekend with laughter and reconnecting.</p>
+                        </div>
+                    </div>
+                    <!-- Dot -->
+                    <div class="absolute left-[12px] md:left-1/2 transform md:-translate-x-1/2 w-8 h-8 rounded-full bg-white border-[6px] border-primary z-20 top-8 md:top-1/2 md:-translate-y-1/2 shadow-md hover:scale-125 transition-transform duration-300 cursor-pointer"></div>
+                    <!-- Empty spacer -->
+                    <div class="order-3 hidden md:block md:w-[45%]"></div>
+                </div>
+
+                <!-- Item 2 (Right on md) -->
+                <div class="relative flex flex-col md:flex-row items-center justify-between timeline-item w-full">
+                    <div class="order-1 hidden md:block md:w-[45%]"></div>
+                    <!-- Dot -->
+                    <div class="absolute left-[12px] md:left-1/2 transform md:-translate-x-1/2 w-8 h-8 rounded-full bg-white border-[6px] border-primary z-20 top-8 md:top-1/2 md:-translate-y-1/2 shadow-md hover:scale-125 transition-transform duration-300 cursor-pointer"></div>
+                    <div class="order-2 md:order-3 md:w-[45%] w-full pl-16 md:pl-12 pr-0 text-left z-10">
+                        <div class="bg-earth-cream p-8 rounded-2xl shadow-sm border border-earth-taupe/10 hover:shadow-[rgba(0,_0,_0,_0.1)_0px_10px_30px] transition-shadow duration-300">
+                            <span class="text-primary font-bold tracking-widest text-xs uppercase block mb-3">July 9</span>
+                            <h4 class="text-2xl text-earth-taupe font-serif mb-4">Thanksgiving in July</h4>
+                            <p class="text-earth-taupe/60 leading-relaxed">Our signature 'Thanksgiving in July' feast at Byrdia Gray’s Home in Blue Island. A beautiful tradition of gratitude, family recipes, and a summer sunset.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Item 3 (Left on md) -->
+                <div class="relative flex flex-col md:flex-row items-center justify-between timeline-item w-full">
+                    <div class="order-2 md:order-1 md:w-[45%] w-full pl-16 md:pl-0 pr-0 md:pr-12 text-left md:text-right z-10">
+                        <div class="bg-earth-cream p-8 rounded-2xl shadow-sm border border-earth-taupe/10 hover:shadow-[rgba(0,_0,_0,_0.1)_0px_10px_30px] transition-shadow duration-300">
+                            <span class="text-primary font-bold tracking-widest text-xs uppercase block mb-3">July 10</span>
+                            <h4 class="text-2xl text-earth-taupe font-serif mb-4">Windy City Summer</h4>
+                            <p class="text-earth-taupe/60 leading-relaxed">Choose between a traditional Fish Fry or heading downtown for the world-famous Taste of Chicago.</p>
+                        </div>
+                    </div>
+                    <!-- Dot -->
+                    <div class="absolute left-[12px] md:left-1/2 transform md:-translate-x-1/2 w-8 h-8 rounded-full bg-white border-[6px] border-primary z-20 top-8 md:top-1/2 md:-translate-y-1/2 shadow-md hover:scale-125 transition-transform duration-300 cursor-pointer"></div>
+                    <!-- Empty spacer -->
+                    <div class="order-3 hidden md:block md:w-[45%]"></div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
