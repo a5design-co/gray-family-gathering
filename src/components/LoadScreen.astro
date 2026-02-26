@@ -131,6 +131,10 @@ const canvas = document.getElementById('ls-canvas');
 
 if (overlay) {
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const isMobileLike = window.matchMedia('(max-width: 900px), (pointer: coarse)').matches;
+  const minDisplayMs = prefersReducedMotion ? 150 : isMobileLike ? 3400 : 1800;
+  const exitDelayMs = prefersReducedMotion ? 40 : isMobileLike ? 2000 : 3000;
+  const exitAnimMs = prefersReducedMotion ? 320 : 1500;
 
   let pct = 0;
   let fakeProgress = 0;
@@ -154,13 +158,13 @@ if (overlay) {
     exiting = true;
     setBar(100);
     overlay.classList.add('exiting');
-    window.setTimeout(cleanupOverlay, prefersReducedMotion ? 320 : 1500);
+    window.setTimeout(cleanupOverlay, exitAnimMs);
   }
 
   function tryExit() {
     if (!minDone || !readyDone || exiting) return;
     window.clearInterval(fakeTimer);
-    window.setTimeout(triggerExit, prefersReducedMotion ? 40 : 450);
+    window.setTimeout(triggerExit, exitDelayMs);
   }
 
   window.requestAnimationFrame(() => overlay.classList.add('ready'));
@@ -176,7 +180,7 @@ if (overlay) {
   window.setTimeout(() => {
     minDone = true;
     tryExit();
-  }, prefersReducedMotion ? 150 : 1800);
+  }, minDisplayMs);
 
   const markReady = () => {
     readyDone = true;
