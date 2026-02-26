@@ -28,6 +28,12 @@ const {
   ],
   perks = ['Free Breakfast', 'Free Parking'],
 } = Astro.props;
+
+const hasBreakfast = perks.some((p) => p.toLowerCase().includes('breakfast'));
+const hasParking = perks.some((p) => p.toLowerCase().includes('parking'));
+const otherPerks = perks.filter(
+  (p) => !p.toLowerCase().includes('parking') && !p.toLowerCase().includes('breakfast'),
+);
 ---
 
 <style>
@@ -84,18 +90,31 @@ const {
                 ))}
             </div>
 
-            <!-- Perks (non-parking) -->
-            <div class="flex flex-wrap gap-4 mb-6">
-                {perks.filter(p => !p.toLowerCase().includes('parking')).map(p => (
-                    <span class="flex items-center gap-2 text-sm text-earth-taupe/80 font-medium bg-primary/5 px-4 py-2 rounded-full">
-                        <span class="material-symbols-outlined text-[16px] text-primary">check_circle</span>
-                        {p}
-                    </span>
-                ))}
-            </div>
+            <!-- Breakfast callout -->
+            {hasBreakfast && (
+                <div class="flex items-start gap-4 bg-[#fff8e8] border-2 border-[#e8c84a]/70 rounded-xl px-6 py-5 mb-6 shadow-[0_0_0_3px_rgba(232,200,74,0.15)]">
+                    <span class="material-symbols-outlined text-3xl text-[#8a6a1f] mt-0.5 shrink-0">free_breakfast</span>
+                    <div>
+                        <p class="text-sm font-bold uppercase tracking-widest text-[#8a6a1f] mb-1">Free Hot Breakfast Daily</p>
+                        <p class="text-earth-taupe/90 text-sm leading-relaxed">Start each morning with complimentary breakfast before heading out for family activities.</p>
+                    </div>
+                </div>
+            )}
+
+            <!-- Other perks -->
+            {otherPerks.length > 0 && (
+                <div class="flex flex-wrap gap-4 mb-6">
+                    {otherPerks.map(p => (
+                        <span class="flex items-center gap-2 text-sm text-earth-taupe/80 font-medium bg-primary/5 px-4 py-2 rounded-full">
+                            <span class="material-symbols-outlined text-[16px] text-primary">check_circle</span>
+                            {p}
+                        </span>
+                    ))}
+                </div>
+            )}
 
             <!-- Parking callout -->
-            {perks.some(p => p.toLowerCase().includes('parking')) && (
+            {hasParking && (
                 <div class="flex items-start gap-4 bg-primary/10 border border-primary/30 rounded-xl px-6 py-5 mb-10">
                     <span class="material-symbols-outlined text-3xl text-primary mt-0.5 shrink-0">local_parking</span>
                     <div>
