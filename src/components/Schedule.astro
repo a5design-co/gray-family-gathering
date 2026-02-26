@@ -20,9 +20,12 @@
 
     @supports (animation-timeline: view()) {
         .timeline-item {
-            animation: fade-up linear both;
+            animation-name: fade-up;
+            animation-duration: auto;
+            animation-timing-function: ease-out;
+            animation-fill-mode: both;
             animation-timeline: view();
-            animation-range: entry 0% cover 40%;
+            animation-range: entry 0% entry 60%;
             will-change: opacity, transform;
         }
     }
