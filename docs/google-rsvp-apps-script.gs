@@ -17,6 +17,7 @@ function doPost(e) {
     data.guests || '',
     data.dietary || '',
     data.friday || '',
+    data.otherDish || '',
     data.message || '',
   ]);
 
@@ -30,6 +31,7 @@ function doPost(e) {
       `Guests: ${data.guests || ''}`,
       `Dietary: ${data.dietary || ''}`,
       `Friday Plans: ${data.friday || ''}`,
+      `Other Dish Contribution: ${data.otherDish || ''}`,
       `Message: ${data.message || ''}`,
     ].join('\n');
 
@@ -53,6 +55,7 @@ function getSheet_() {
       'Guests',
       'Dietary',
       'Friday Plans',
+      'Other Dish Contribution',
       'Message',
     ]);
   }
