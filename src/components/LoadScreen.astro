@@ -124,12 +124,16 @@ const canvas = document.getElementById('ls-canvas');
 
 if (overlay) {
   const isMobileLike = window.matchMedia('(max-width: 900px), (pointer: coarse)').matches;
-  const minDisplayMs = isMobileLike ? 3400 : 1800;
-  const exitDelayMs = isMobileLike ? 2000 : 3000;
+  const minDisplayMs = isMobileLike ? 1400 : 1800;
+  const exitDelayMs = isMobileLike ? 250 : 3000;
   const exitAnimMs = 1500;
 
   let pct = 0;
   let fakeProgress = 0;
+  let exitStartProgress = 0;
+  let exitScheduledAt = 0;
+  let exitScheduled = false;
+  let exitTimer = null;
   let minDone = false;
   let readyDone = document.readyState === 'interactive' || document.readyState === 'complete';
   let exiting = false;
@@ -147,6 +151,11 @@ if (overlay) {
 
   function triggerExit() {
     if (exiting) return;
+    if (exitTimer) {
+      window.clearTimeout(exitTimer);
+      exitTimer = null;
+    }
+    window.clearInterval(fakeTimer);
     exiting = true;
     setBar(100);
     overlay.classList.add('exiting');
@@ -154,17 +163,33 @@ if (overlay) {
   }
 
   function tryExit() {
-    if (!minDone || !readyDone || exiting) return;
-    window.clearInterval(fakeTimer);
-    window.setTimeout(triggerExit, exitDelayMs);
+    if (!minDone || !readyDone || exiting || exitScheduled) return;
+    exitScheduled = true;
+    exitScheduledAt = performance.now();
+    exitStartProgress = Math.max(fakeProgress, 90);
+    fakeProgress = exitStartProgress;
+    setBar(fakeProgress);
+    exitTimer = window.setTimeout(triggerExit, exitDelayMs);
   }
 
   window.requestAnimationFrame(() => overlay.classList.add('ready'));
 
   const fakeTimer = window.setInterval(() => {
     if (exiting) return;
-    fakeProgress += 3 + Math.random() * 7.5;
-    if (fakeProgress >= 85) fakeProgress = 85;
+
+    if (exitScheduled) {
+      const elapsed = Math.max(0, performance.now() - exitScheduledAt);
+      const phase = Math.min(1, elapsed / Math.max(1, exitDelayMs));
+      const easedPhase = 1 - Math.pow(1 - phase, 2.1);
+      const target = exitStartProgress + (99.2 - exitStartProgress) * easedPhase;
+      const drift = (1 - phase) * (0.22 + Math.random() * 0.22);
+      fakeProgress = Math.min(99.2, Math.max(fakeProgress + drift, target));
+    } else {
+      fakeProgress += 2 + Math.random() * 4;
+      if (fakeProgress > 88) fakeProgress = 88 + (fakeProgress - 88) * 0.18;
+      fakeProgress = Math.min(fakeProgress, 90);
+    }
+
     setBar(fakeProgress);
   }, 150);
 
@@ -211,15 +236,75 @@ if (overlay) {
       return t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2;
     }
 
-    function fibSphere(i, n, r) {
-      const g = (1 + Math.sqrt(5)) / 2;
-      const theta = Math.acos(1 - 2 * (i + 0.5) / n);
-      const phi = 2 * Math.PI * i / g;
-      return new THREE.Vector3(
-        r * Math.sin(theta) * Math.cos(phi),
-        r * Math.sin(theta) * Math.sin(phi),
-        r * Math.cos(theta),
-      );
+    function pick(arr) {
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    function oakPoint(i, n) {
+      const trunkCount = Math.floor(n * 0.2);
+      const branchCount = Math.floor(n * 0.16);
+      const branchSet = [
+        { az: -2.74, elev: 0.48, len: 2.05, baseY: -0.92 },
+        { az: -2.18, elev: 0.55, len: 1.78, baseY: -0.82 },
+        { az: -1.48, elev: 0.5, len: 1.72, baseY: -0.74 },
+        { az: -0.64, elev: 0.56, len: 1.95, baseY: -0.86 },
+        { az: 0.22, elev: 0.51, len: 2.15, baseY: -0.9 },
+        { az: 0.86, elev: 0.54, len: 1.88, baseY: -0.78 },
+        { az: 1.56, elev: 0.44, len: 1.66, baseY: -0.7 },
+        { az: 2.24, elev: 0.58, len: 1.8, baseY: -0.82 },
+      ];
+
+      if (i < trunkCount) {
+        const t = Math.pow(Math.random(), 0.88);
+        const y = -2.48 + t * 1.86;
+        const flare = t < 0.2 ? 1 + (0.2 - t) * 4.2 : 1;
+        const radius = (0.24 - t * 0.11) * flare + Math.random() * 0.036;
+        const ang = Math.random() * Math.PI * 2;
+        const lean = Math.sin(t * 1.28) * 0.07;
+        return {
+          pos: new THREE.Vector3(
+            Math.cos(ang) * radius + lean,
+            y,
+            Math.sin(ang) * radius * 0.9,
+          ),
+          kind: 'bark',
+        };
+      }
+
+      if (i < trunkCount + branchCount) {
+        const branch = pick(branchSet);
+        const u = Math.pow(Math.random(), 0.72);
+        const len = branch.len * (0.14 + u * 0.86);
+        const az = branch.az + (Math.random() - 0.5) * 0.24;
+        const elev = branch.elev + (Math.random() - 0.5) * 0.16;
+        const thickness = (1 - u) * 0.14 + 0.02;
+        const x = Math.cos(az) * len + (Math.random() - 0.5) * thickness;
+        const y = branch.baseY + Math.sin(elev) * len + (Math.random() - 0.5) * thickness * 0.8;
+        const z = Math.sin(az) * len * 0.92 + (Math.random() - 0.5) * thickness;
+        return {
+          pos: new THREE.Vector3(x, y, z),
+          kind: 'bark',
+        };
+      }
+
+      const h = Math.pow(Math.random(), 0.76);
+      let y = -0.66 + h * 3.1;
+      const profile = Math.sin(Math.min(0.999, h + 0.09) * Math.PI);
+      const maxRadius = 2.3 * Math.pow(Math.max(0.04, profile), 0.57);
+      const angle = Math.random() * Math.PI * 2;
+      let radius = Math.sqrt(Math.random()) * maxRadius * (0.82 + Math.random() * 0.24);
+      if (h < 0.22 && radius < 0.58) radius = 0.58 + Math.random() * 0.34;
+      y += Math.exp(-((h - 0.84) ** 2) / 0.016) * 0.14;
+
+      const ripple = 1 + 0.07 * Math.sin(angle * 3.1 + h * 10);
+      return {
+        pos: new THREE.Vector3(
+          Math.cos(angle) * radius * ripple,
+          y,
+          Math.sin(angle) * radius * 0.9 * (1 + 0.05 * Math.cos(angle * 2.4 + h * 6)),
+        ),
+        kind: 'leaf',
+      };
     }
 
     function makeDot() {
@@ -258,24 +343,20 @@ if (overlay) {
 
     const scene = new THREE.Scene();
     const cam = new THREE.PerspectiveCamera(60, W / H, 0.1, 100);
-    cam.position.z = 5.5;
+    cam.position.set(0, 0.12, 5.85);
 
-    const PALETTE = [
-      '#c8a96e', '#c8a96e', '#c8a96e',
-      '#d4a853', '#d4a853',
-      '#C95B28', '#C95B28',
-      '#a3c178',
-      '#3A6A32',
-    ];
+    const BARK_PALETTE = ['#2B1D15', '#3A271C', '#4A3425', '#5A4130'];
+    const LEAF_PALETTE = ['#1F4A1D', '#2A5C24', '#35712B', '#4A8A39', '#5E9F3E', '#7AB749'];
 
-    const N = 220;
-    const R = 1.85;
+    const TREE_SCALE = isMobileLike ? 1.16 : 1.2;
+    const N = isMobileLike ? 1200 : 2100;
     const tgts = [];
     const orgs = [];
     const pdata = [];
 
     for (let i = 0; i < N; i++) {
-      tgts.push(fibSphere(i, N, R));
+      const target = oakPoint(i, N);
+      tgts.push(target.pos.multiplyScalar(TREE_SCALE));
       orgs.push(new THREE.Vector3(
         (Math.random() - 0.5) * 11,
         (Math.random() - 0.5) * 9,
@@ -283,8 +364,15 @@ if (overlay) {
       ));
       pdata.push({
         phase: Math.random() * Math.PI * 2,
-        freq: 0.65 + Math.random() * 0.75,
-        bamp: 0.022 + Math.random() * 0.04,
+        freq: target.kind === 'leaf' ? 0.72 + Math.random() * 0.7 : 0.45 + Math.random() * 0.45,
+        bamp: target.kind === 'leaf' ? 0.06 + Math.random() * 0.07 : 0.02 + Math.random() * 0.03,
+        sx: (Math.random() - 0.5) * (target.kind === 'leaf' ? 0.32 : 0.12),
+        sy: target.kind === 'leaf' ? 0.08 + Math.random() * 0.22 : 0.02 + Math.random() * 0.05,
+        sz: (Math.random() - 0.5) * (target.kind === 'leaf' ? 0.32 : 0.12),
+        driftPhase: Math.random() * Math.PI * 2,
+        driftFreq: target.kind === 'leaf' ? 0.5 + Math.random() * 0.6 : 0.35 + Math.random() * 0.45,
+        driftAmp: target.kind === 'leaf' ? 0.014 + Math.random() * 0.02 : 0.006 + Math.random() * 0.01,
+        kind: target.kind,
       });
     }
 
@@ -295,7 +383,14 @@ if (overlay) {
       pos[i * 3] = orgs[i].x;
       pos[i * 3 + 1] = orgs[i].y;
       pos[i * 3 + 2] = orgs[i].z;
-      const col = new THREE.Color(PALETTE[Math.floor(Math.random() * PALETTE.length)]);
+      let col;
+      if (pdata[i].kind === 'bark') {
+        col = new THREE.Color(BARK_PALETTE[Math.floor(Math.random() * BARK_PALETTE.length)]);
+      } else {
+        const base = new THREE.Color(LEAF_PALETTE[Math.floor(Math.random() * LEAF_PALETTE.length)]);
+        const highlight = THREE.MathUtils.clamp((tgts[i].y + 0.3) / 3.2, 0, 1) * 0.16;
+        col = base.offsetHSL(-0.01 + Math.random() * 0.02, 0, highlight);
+      }
       cols[i * 3] = col.r;
       cols[i * 3 + 1] = col.g;
       cols[i * 3 + 2] = col.b;
@@ -307,7 +402,7 @@ if (overlay) {
 
     const tex = makeDot();
     const mat = new THREE.PointsMaterial({
-      size: 0.062,
+      size: isMobileLike ? 0.058 : 0.054,
       vertexColors: true,
       transparent: true,
       opacity: 0.88,
@@ -341,7 +436,7 @@ if (overlay) {
       raf = window.requestAnimationFrame(tick);
       time += 0.008;
 
-      if (!exiting) gather = Math.min(1, gather + 0.0044);
+      if (!exiting) gather = Math.min(1, gather + 0.0105);
       const t = ease(gather);
       const pa = geom.attributes.position.array;
 
@@ -349,21 +444,31 @@ if (overlay) {
         const o = orgs[i];
         const tg = tgts[i];
         const d = pdata[i];
-        const b = Math.sin(time * d.freq + d.phase) * d.bamp * t;
-        pa[i * 3] = o.x + (tg.x - o.x) * t + tg.x * b;
-        pa[i * 3 + 1] = o.y + (tg.y - o.y) * t + tg.y * b;
-        pa[i * 3 + 2] = o.z + (tg.z - o.z) * t + tg.z * b;
+        const wave = (
+          Math.sin(time * d.freq + d.phase) * 0.62 +
+          Math.cos(time * d.freq * 1.73 + d.phase * 0.37) * 0.38
+        ) * d.bamp * t;
+        const driftT = time * d.driftFreq + d.driftPhase;
+        const driftX = Math.sin(driftT) * d.driftAmp * t;
+        const driftY = Math.sin(driftT * 1.18 + d.phase * 0.41) * d.driftAmp * 0.6 * t;
+        const driftZ = Math.cos(driftT * 0.94 + d.phase * 0.2) * d.driftAmp * t;
+        pa[i * 3] = o.x + (tg.x - o.x) * t + d.sx * wave + driftX;
+        pa[i * 3 + 1] = o.y + (tg.y - o.y) * t + d.sy * wave + driftY;
+        pa[i * 3 + 2] = o.z + (tg.z - o.z) * t + d.sz * wave + driftZ;
       }
       geom.attributes.position.needsUpdate = true;
 
-      pts.rotation.y += 0.004;
-      pts.rotation.x = Math.sin(time * 0.17) * 0.14;
+      pts.rotation.y += 0.0009;
+      if (pts.rotation.y > Math.PI * 2) pts.rotation.y -= Math.PI * 2;
+      pts.rotation.x = -0.03 + Math.sin(time * 0.18) * 0.028;
+      pts.position.y = Math.sin(time * 0.14) * 0.04 + Math.cos(time * 0.31) * 0.01;
 
       if (exiting) {
-        exitFade = Math.min(1, exitFade + 0.042);
-        pts.scale.setScalar(1 + ease(exitFade) * 7.5);
-        mat.opacity = Math.max(0, 0.88 - exitFade * 1.7);
-        if (mat.opacity <= 0 || !overlay.isConnected) {
+        exitFade = Math.min(1, exitFade + 0.0105);
+        const fadeEase = ease(exitFade);
+        pts.scale.setScalar(1 + fadeEase * 3.8);
+        mat.opacity = Math.max(0, 0.88 - fadeEase * 0.75);
+        if (!overlay.isConnected) {
           stop();
           return;
         }
