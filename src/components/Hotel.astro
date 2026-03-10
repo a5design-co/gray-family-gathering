@@ -9,8 +9,11 @@ export interface Props {
   address?:      string;
   dates?:        string;
   groupName?:    string;
+  groupCode?:    string;
   phone?:        string;
   deadline?:     string;
+  standardRate?: string;
+  roomsLeft?:    number;
   rooms?:        Room[];
   perks?:        string[];
 }
@@ -20,8 +23,11 @@ const {
   address   = '16176 S La Grange Rd, Orland Park, IL 60467',
   dates     = 'July 8 – 11, 2026',
   groupName = "Gray's Thanksgiving in July",
-  phone     = '708-298-8307',
+  groupCode = '601',
+  phone     = '1-888-446-6677',
   deadline  = 'June 15, 2026',
+  standardRate = '$400/night',
+  roomsLeft = 10,
   rooms     = [
     { type: 'King Room',  price: '$193/night' },
     { type: '2 Queens',   price: '$185/night' },
@@ -72,6 +78,10 @@ const otherPerks = perks.filter(
                     <span class="text-earth-taupe font-medium">{groupName}</span>
                 </div>
                 <div class="flex flex-col gap-1">
+                    <span class="text-[0.7rem] uppercase tracking-[0.2em] font-bold text-primary">Group Code</span>
+                    <span class="text-earth-taupe font-bold text-lg">{groupCode}</span>
+                </div>
+                <div class="flex flex-col gap-1">
                     <span class="text-[0.7rem] uppercase tracking-[0.2em] font-bold text-primary">To Book (call for discount)</span>
                     <a class="text-earth-taupe font-bold hover:text-primary transition-colors hover:underline" href={`tel:${phone.replace(/-/g, '')}`}>{phone}</a>
                 </div>
@@ -88,6 +98,15 @@ const otherPerks = perks.filter(
                         <strong class="block text-2xl text-primary font-serif">{r.price}</strong>
                     </div>
                 ))}
+            </div>
+
+            <!-- Limited availability & standard rate warning -->
+            <div class="flex items-start gap-4 bg-red-50 border-2 border-red-300 rounded-xl px-6 py-5 mb-8 shadow-[0_0_0_3px_rgba(239,68,68,0.1)]">
+                <span class="material-symbols-outlined text-3xl text-red-600 mt-0.5 shrink-0">warning</span>
+                <div>
+                    <p class="text-sm font-bold uppercase tracking-widest text-red-700 mb-1">Only {roomsLeft} Discounted Rooms Left!</p>
+                    <p class="text-earth-taupe/90 text-sm leading-relaxed">Due to a major sports event, standard hotel rates are <strong class="text-red-600">{standardRate}</strong>. Our group block has significantly lower rates — but only {roomsLeft} rooms remain. Call now to secure yours!</p>
+                </div>
             </div>
 
             <!-- Breakfast callout -->
