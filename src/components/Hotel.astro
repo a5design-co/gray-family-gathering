@@ -2,6 +2,7 @@
 interface Room {
   type:  string;
   price: string;
+  note?:  string;
 }
 
 interface Hotel {
@@ -31,7 +32,7 @@ const hotels: Hotel[] = [
     standardRate: '$400/night',
     roomsLeft:    10,
     rooms: [
-      { type: 'King Room', price: '$193/night' },
+      { type: 'King Room', price: '$193/night', note: 'Only 5 available' },
       { type: '2 Queens',  price: '$185/night' },
     ],
     perks: ['Free Breakfast', 'Free Parking'],
@@ -120,6 +121,7 @@ const hotels: Hotel[] = [
                                 <div class="bg-earth-cream border border-earth-taupe/10 px-6 py-4 rounded-xl text-center min-w-[140px]">
                                     <span class="block text-sm text-earth-taupe/70 uppercase tracking-widest font-bold mb-1">{r.type}</span>
                                     <strong class="block text-2xl text-primary font-serif">{r.price}</strong>
+                                    {r.note && <span class="block text-xs font-bold text-red-600 mt-1 uppercase tracking-wide">{r.note}</span>}
                                 </div>
                             ))}
                         </div>
