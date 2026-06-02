@@ -10,6 +10,12 @@ import Activities from '../components/Activities.astro';
 import Menu from '../components/Menu.astro';
 import RSVP from '../components/RSVP.astro';
 import Footer from '../components/Footer.astro';
+
+// Google Apps Script RSVP endpoint. Hardcoded (not secret — it's already
+// embedded in the public client HTML) so every build has it, even when the
+// host rebuilds from git without the gitignored .env present.
+const GOOGLE_SCRIPT_URL =
+	'https://script.google.com/macros/s/AKfycbz5hndsSj-jHw-3JPtf83GBxXEcOrh4-cOrC4iCEZfeW3XK1q3jcMr8ygyrlK-GmuA0/exec';
 ---
 
 <Layout title="Gray Family Gathering 2026">
@@ -22,7 +28,7 @@ import Footer from '../components/Footer.astro';
 		<Hotel />
 		<Activities />
 		<Menu />
-		<RSVP />
+		<RSVP googleScriptUrl={GOOGLE_SCRIPT_URL} />
 	</main>
 	<Footer />
 </Layout>
